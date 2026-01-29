@@ -1,0 +1,21 @@
+{
+  "name": "codex-code-website",
+  "version": "1.0.0",
+  "description": "This app searches a single authorized Gmail inbox (example: `servicehub000@gmail.com`) and extracts verification codes from messages received in the last 5 minutes.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "imapflow": "^1.2.8",
+    "mailparser": "^3.9.3",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}

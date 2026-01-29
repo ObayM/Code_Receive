@@ -1,0 +1,7 @@
+vendor/
+.env
+token.json
+node_modules/
+.next/
+dist/
+out/
