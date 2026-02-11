@@ -14,6 +14,7 @@ export async function POST(request) {
 
   // Verify password (still from env)
   if (!isAdminPasswordValid(password)) {
+    console.log("[ADMIN-LOGIN] Invalid password attempt");
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
@@ -25,12 +26,16 @@ export async function POST(request) {
     return NextResponse.json({ error: "Session error." }, { status: 500 });
   }
 
+  // Determine if the original request was over HTTPS (handles reverse proxy)
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  const isSecure = forwardedProto === "https" || process.env.NODE_ENV === "production";
+
   const response = NextResponse.json({ ok: true });
   response.cookies.set("admin_session", sessionId, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    secure: process.env.NODE_ENV === "production",
+    secure: isSecure,
     maxAge: 60 * 60 * 24 // Cookie age (should match session)
   });
 

@@ -132,10 +132,10 @@ Paste this config (replace `your-domain.com`):
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
+    server_name servicehub.ink www.servicehub.ink;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -167,7 +167,7 @@ apt install certbot python3-certbot-nginx -y
 
 Obtain and install the certificate:
 ```bash
-certbot --nginx -d your-domain.com -d www.your-domain.com
+certbot --nginx -d servicehub.ink -d http://www.servicehub.ink
 ```
 
 Certbot will:
