@@ -23,7 +23,7 @@ export async function GET(request) {
     const codes = await prisma.code.findMany({
       where: {
         receivedAt: {
-          gt: new Date(Date.now() - 60 * 60 * 1000) // Last 60 minutes for admin
+          gt: new Date(Date.now() - 8 * 60 * 1000) // Last 8 minutes for admin
         }
       },
       orderBy: {

@@ -29,7 +29,7 @@ export async function GET(request) {
       where: {
         email: email,
         receivedAt: {
-          gt: new Date(Date.now() - 15 * 60 * 1000) // Last 15 minutes
+          gt: new Date(Date.now() - 8 * 60 * 1000) // Last 8 minutes
         }
       },
       orderBy: {

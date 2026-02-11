@@ -171,46 +171,106 @@ The new architecture uses a **singleton background sync**:
 
 ---
 
-### Option C: Docker + Any VPS (Full Control)
+### Option C: Docker + Any VPS (Full Control) ⭐ Recommended for Production
 
-Deploy on any VPS (DigitalOcean, Linode, Vultr, etc.) using Docker.
+This is the most robust way to deploy. Works on any Ubuntu/Debian-based VPS (DigitalOcean, Hetzner, Vultr, Linode, etc.).
 
-**Prerequisites**: 
-- A VPS with Docker installed
-- Domain name (optional, can use IP address)
+#### Step 1: Server Preparation
+SSH into your VPS and update the system:
+```bash
+ssh root@your-vps-ip
+apt update && apt upgrade -y
+# Optional: Setup firewall
+ufw allow 22
+ufw allow 80
+ufw allow 443
+ufw enable
+```
 
-**Steps**:
+#### Step 2: Install Docker & Docker Compose
+Quick install script for Ubuntu:
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+apt install docker-compose-plugin -y
+```
 
-1. **Upload your project** to the VPS:
+#### Step 3: Deployment
+1. **Upload project** (use Git or SCP):
    ```bash
-   scp -r ./Code_Receive root@your-vps-ip:/root/
+   # From your local machine
+   scp -r ./Code_Receive root@your-vps-ip:/opt/code-receive
+   ```
+2. **Move to project folder**:
+   ```bash
+   cd /opt/code-receive
+   mkdir -p data # Create volume folder for SQLite
+   ```
+3. **Configure Environment**:
+   ```bash
+   cp .env.example .env
+   nano .env
+   # Ensure DATABASE_URL=file:/app/data/dev.db
+   ```
+4. **Launch**:
+   ```bash
+   docker compose up -d
    ```
 
-2. **SSH into your VPS**:
+#### Step 4: Reverse Proxy (Nginx) & SSL
+Running on port 3000 is good, but you need HTTPS for production.
+
+1. **Install Nginx**: `apt install nginx -y`
+2. **Create config**: `nano /etc/nginx/sites-available/code-receive`
+```nginx
+server {
+    server_name your-domain.com;
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+3. **Enable & Link**:
+```bash
+ln -s /etc/nginx/sites-available/code-receive /etc/nginx/sites-enabled/
+nginx -t && systemctl restart nginx
+```
+4. **Get Free SSL (Certbot)**:
+```bash
+apt install certbot python3-certbot-nginx -y
+certbot --nginx -d your-domain.com
+```
+
+---
+
+### Option D: PM2 (Non-Docker Deployment)
+
+If you don't want to use Docker, you can run the app directly using PM2.
+
+1. **Install Node.js & PM2**:
    ```bash
-   ssh root@your-vps-ip
-   cd /root/Code_Receive
+   curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+   apt install -y nodejs
+   npm install pm2 -g
    ```
-
-3. **Create `.env` file** on the server with production values
-
-4. **Run with Docker Compose**:
+2. **Clone & Install**:
    ```bash
-   docker-compose up -d
+   cd /opt/code-receive
+   npm install
+   npx prisma db push
+   npm run build
    ```
-
-The app will start on port 3000. Set up nginx as a reverse proxy for HTTPS.
-
-**Cost**: From **$4-6/month** (cheapest VPS options)
-
-**Pros**:
-- Full control
-- No rate limits or quotas
-- Can run other apps on same VPS
-
-**Cons**:
-- Requires server management
-- Need to configure HTTPS manually
+3. **Start with PM2**:
+   ```bash
+   pm2 start npm --name "code-receive" -- start
+   pm2 save
+   pm2 startup
+   ```
 
 ---
 
