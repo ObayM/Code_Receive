@@ -2,6 +2,8 @@ FROM node:22-alpine AS base
 
 FROM base AS deps
 WORKDIR /app
+# Build tools needed to compile better-sqlite3 from source for musl/Alpine
+RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json ./
 RUN npm ci
 
@@ -17,7 +19,7 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV production
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl libc6-compat
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -29,6 +31,7 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
 
 USER nextjs
 
