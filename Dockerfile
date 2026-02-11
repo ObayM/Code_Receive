@@ -19,7 +19,7 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV production
 
-RUN apk add --no-cache openssl libc6-compat
+RUN apk add --no-cache openssl
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -31,6 +31,7 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Copy the native better-sqlite3 addon (compiled for musl)
 COPY --from=builder /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
 
 USER nextjs
