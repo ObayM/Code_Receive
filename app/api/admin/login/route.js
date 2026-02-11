@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminSession, isAdminPasswordValid } from "@/lib/admin-auth.js";
+import logger from "@/lib/logger.js";
 
 export const runtime = "nodejs";
 
@@ -14,7 +15,7 @@ export async function POST(request) {
 
   // Verify password (still from env)
   if (!isAdminPasswordValid(password)) {
-    console.log("[ADMIN-LOGIN] Invalid password attempt");
+    logger.warn("[ADMIN-LOGIN] Invalid password attempt");
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
@@ -22,7 +23,7 @@ export async function POST(request) {
   try {
     sessionId = await createAdminSession();
   } catch (error) {
-    console.error("Session creation failed:", error);
+    logger.error({ err: error }, "Session creation failed");
     return NextResponse.json({ error: "Session error." }, { status: 500 });
   }
 

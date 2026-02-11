@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { startSyncLoop } from "@/lib/sync";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import logger from "@/lib/logger";
 
 export const runtime = "nodejs";
 
@@ -44,7 +45,7 @@ export async function GET(request) {
       checkedAt: new Date().toISOString()
     });
   } catch (error) {
-    console.error("Database error:", error);
+    logger.error({ err: error }, "Database error");
     return Response.json({ error: "Database error" }, { status: 500 });
   }
 }
