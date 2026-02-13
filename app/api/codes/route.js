@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { startSyncLoop } from "@/lib/sync";
-import { getImapConfig } from "@/lib/imap";
+import { getAppConfig } from "@/lib/config";
 import logger from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -14,7 +14,7 @@ export async function GET(request) {
   }
 
   // Enforce ALLOWED_DOMAINS
-  const config = getImapConfig();
+  const config = getAppConfig();
   if (config.allowedDomains.length > 0) {
     const domain = email.split("@")[1]?.toLowerCase();
     if (!domain || !config.allowedDomains.includes(domain)) {
@@ -30,7 +30,7 @@ export async function GET(request) {
       where: {
         email: email,
         receivedAt: {
-          gt: new Date(Date.now() - 8 * 60 * 1000) // Last 8 minutes
+          gt: new Date(Date.now() - (config.lookbackMinutes || 8) * 60 * 1000)
         }
       },
       orderBy: {

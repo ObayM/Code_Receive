@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { startSyncLoop } from "@/lib/sync";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import { getAppConfig } from "@/lib/config";
 import logger from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -21,10 +22,12 @@ export async function GET(request) {
   startSyncLoop();
 
   try {
+    const config = getAppConfig();
+    const lookbackMinutes = config.lookbackMinutes || 8;
     const codes = await prisma.code.findMany({
       where: {
         receivedAt: {
-          gt: new Date(Date.now() - 8 * 60 * 1000) // Last 8 minutes for admin
+          gt: new Date(Date.now() - lookbackMinutes * 60 * 1000)
         }
       },
       orderBy: {

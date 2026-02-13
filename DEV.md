@@ -274,6 +274,14 @@ If you don't want to use Docker, you can run the app directly using PM2.
 
 ---
 
+    email: "vomebmbo6@servicehub.ink"
+[2026-02-13 14:12:02.022 +0200] INFO: [SYNC] Duplicate code found, skipping.
+    code: "353740"
+    email: "vomebmbo6@servicehub.ink"
+[2026-02-13 14:12:02.022 +0200] INFO: [SYNC] Duplicate code found, skipping.
+    code: "333333"
+    email: "aplus033@ekamty.com"
+        searchSince: "2026-02-13T11:43:20.000Z"
 
 ## 4. Troubleshooting
 
