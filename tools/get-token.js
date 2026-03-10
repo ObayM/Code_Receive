@@ -6,7 +6,7 @@
  *
  * Prerequisites:
  *   1. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env
- *   2. In Google Cloud Console, add https://3248-197-43-87-229.ngrok-free.app/oauth2callback
+ *   2. In Google Cloud Console, add https://e40f-197-43-23-32.ngrok-free.app/oauth2callback
  *      as an authorized redirect URI for your OAuth client
  */
 
@@ -14,13 +14,14 @@ import "dotenv/config";
 import { google } from "googleapis";
 import http from "http";
 import { URL } from "url";
+import { saveRefreshToken } from "../lib/token-store.js";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REDIRECT_URI = "https://3248-197-43-87-229.ngrok-free.app/oauth2callback";
+const REDIRECT_URI = "https://e40f-197-43-23-32.ngrok-free.app/oauth2callback";
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
-    console.error("❌ Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file first.");
+    console.error(" Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file first.");
     process.exit(1);
 }
 
@@ -34,10 +35,10 @@ const authUrl = oauth2Client.generateAuthUrl({
 
 console.log("\n🔗 Open this URL in your browser:\n");
 console.log(authUrl);
-console.log("\n⏳ Waiting for OAuth callback on https://3248-197-43-87-229.ngrok-free.app ...\n");
+console.log("\n⏳ Waiting for OAuth callback on https://e40f-197-43-23-32.ngrok-free.app ...\n");
 
 const server = http.createServer(async (req, res) => {
-    const url = new URL(req.url, "https://3248-197-43-87-229.ngrok-free.app");
+    const url = new URL(req.url, "https://e40f-197-43-23-32.ngrok-free.app");
 
     if (url.pathname !== "/oauth2callback") {
         res.writeHead(404);
@@ -59,8 +60,11 @@ const server = http.createServer(async (req, res) => {
         res.end("<h1>✅ Success!</h1><p>You can close this tab. Check your terminal for the refresh token.</p>");
 
         console.log("✅ Got tokens!\n");
-        console.log("Add this to your .env file:\n");
         console.log(`GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}\n`);
+
+        // Save to persistent token store so the app picks it up automatically
+        await saveRefreshToken(tokens.refresh_token);
+        console.log("💾 Saved refresh token to data/google-tokens.json\n");
 
         server.close();
         process.exit(0);
