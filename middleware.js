@@ -6,7 +6,7 @@ export function middleware(request) {
     const userAgent = headers.get('user-agent') || '-';
 
     // Log the incoming request
-    logger.info({
+    logger.debug({
         method,
         path: nextUrl.pathname,
         query: Object.fromEntries(nextUrl.searchParams),
