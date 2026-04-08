@@ -15,8 +15,8 @@ export async function POST(request) {
             
             logger.debug({ historyId: data.historyId, email: data.emailAddress }, "[WEBHOOK] Received push notification");
             
-            // Trigger sync, using the incoming historyId to optimize
-            syncOnce().catch(err => logger.error({ err }, "[WEBHOOK] Error triggering syncOnce from webhook"));
+            // Trigger sync using the incoming historyId for efficient incremental sync
+            syncOnce(data.historyId).catch(err => logger.error({ err }, "[WEBHOOK] Error triggering syncOnce from webhook"));
             
             return Response.json({ success: true, historyId: data.historyId });
         }
