@@ -38,9 +38,10 @@ COPY --from=builder /app/package.json ./
 # Copy the REBUILT native modules (better-sqlite3) explicitly
 COPY --from=builder /app/node_modules ./node_modules
 
-USER nextjs
+COPY --from=builder /app/entrypoint.sh ./
+RUN chmod +x entrypoint.sh
 
 EXPOSE 3000
 ENV PORT 3000
 
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node server.js"]
+ENTRYPOINT ["./entrypoint.sh"]
