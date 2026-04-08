@@ -30,3 +30,10 @@ model AdminSession {
   expiresAt DateTime
   createdAt DateTime @default(now())
 }
+
+model SyncState {
+  id         Int      @id @default(autoincrement())
+  historyId  String?
+  expiration DateTime?
+  updatedAt  DateTime @updatedAt
+}
